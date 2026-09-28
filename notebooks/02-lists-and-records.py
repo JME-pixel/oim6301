@@ -133,7 +133,6 @@ def _(freight_charge, fright_charges):
     for freight_charges in freight_charge:
         if fright_charges< 25:
             print(fright_charges)
-
     return (freight_charges,)
 
 
@@ -292,12 +291,13 @@ def _(mo):
 
 @app.cell
 def _():
-    score = 95
-    if score >= 60:
-        print("Pass"),
-    
-    elif score >= 90:
+    score = 55
+    if score >=90:
         print("A")
+    elif score >= 60:
+        print("Pass")
+    elif score < 60:
+        print("Fail")
     return
 
 
@@ -325,6 +325,51 @@ def _(mo):
 def _():
     statuses = ["shipped", "pending", "shipped", "cancelled", "shipped"]
     statuses
+    return (statuses,)
+
+
+@app.cell
+def _(statuses):
+    shipped_count =0 
+    for status in statuses:
+        if status =="shipped":
+            shipped_count = shipped_count +1
+    shipped_count
+    return
+
+
+@app.cell
+def _(statuses):
+    shipped_counts = 0
+    for statuse in statuses:
+        if statuse!="shipped":
+            shipped_counts = shipped_counts+1
+    shipped_counts
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    cancelled_count=0
+    for status in statuses:
+        if status =="cancelled":
+
+            cancelled_count = cancelled_count+1
+        elif status =="pending":
+            cancelled_count = cancelled_count+1
+    cancelled_count
+    """)
+    return
+
+
+@app.cell
+def _(statuses):
+    shipped_cts = 0
+    for st in statuses:
+        if st == "shipped":
+            shipped_cts = shipped_cts+1 / len(statuses)
+    shipped_cts
     return
 
 
@@ -352,8 +397,21 @@ def _(mo):
 @app.cell
 def _():
     order_lines = ["notebook", "pen"]
-    order_lines.append(["stapler", "tape"])
+    order_lines.extend(["stapler", "tape"])
     len(order_lines)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    .append() always adds exactly one item — even if what you hand it is itself a list, it becomes that one single item, not several separate ones.
+    """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
@@ -384,6 +442,20 @@ def _():
     print(sorted(tickers))
     print(tickers.sort())
     tickers
+    return (tickers,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    The 3 line did not print becausethere was nothing inside the parenthasesof the print function call.
+    """)
+    return
+
+
+@app.cell
+def _(tickers):
+    sorted(tickers, reverse=True)
     return
 
 
@@ -417,10 +489,24 @@ def _(mo):
 @app.cell
 def _():
     prices = [12.50, 8.00, 19.99]
-    sale_prices = prices
+    sale_prices = prices[:]
     sale_prices.append(4.99)
     prices
+    return prices, sale_prices
+
+
+@app.cell
+def _(prices, sale_prices):
+    prices is sale_prices
     return
+
+
+app._unparsable_cell(
+    r"""
+    You might want to have a diffrent changes to the list alsow you migh need to get diferent resules out the list.
+    """,
+    name="_"
+)
 
 
 @app.cell(hide_code=True)
@@ -448,6 +534,11 @@ def _(mo):
 def _():
     print("100" + "50")
     print(100 + 50)
+    return
+
+
+@app.cell(hide_code=True)
+def _():
     return
 
 
@@ -529,6 +620,24 @@ def _(mo):
     Two of them fail, and both give the same kind of error. Add a cell and find out
     which, and what the message says. A `KeyError` names the key it could not find.
     """)
+    return
+
+
+@app.cell
+def _(first_order):
+    first_order["Freight"]
+    return
+
+
+@app.cell
+def _(first_order):
+    first_order["freight"]
+    return
+
+
+@app.cell
+def _(first_order):
+    first_order[0]
     return
 
 
@@ -621,6 +730,38 @@ def _(mo):
     return
 
 
+@app.cell
+def _(orders):
+    total_freight = 0
+    for order in orders:
+        total_freight = total_freight + order["Freight"]
+    total_freight
+    return
+
+
+@app.cell
+def _(orders):
+    no_ship_count = 0
+    for record in orders:
+        if record["ShippedDate"] is None:
+            no_ship_count = no_ship_count+1
+    no_ship_count
+    return
+
+
+@app.cell
+def _(orders):
+    largest_freight = 0
+    largest_order = 0
+    for r in orders:
+        if r["Freight"] > largest_freight:
+            largest_freight = r["Freight"]
+            largest_order = r["OrderID"]
+    print(largest_order)
+    print(largest_freight)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -634,6 +775,14 @@ def _(mo):
 
     Then check it: if a row were what you just wrote, **how many rows would this table
     have?** Does that match 30?
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    one rowis the is the country it came from and  another idcustome is the perosnal ID for the person
     """)
     return
 
@@ -682,6 +831,23 @@ def _():
         {"Symbol": "TSLA", "Shares": 150, "Price": 255.70},
     ]
     portfolio
+    return (portfolio,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    first you multipy the share price by the number of shares to get the total value of the investment. then you add each one of them indivudal to get the total portfolio value.
+    """)
+    return
+
+
+@app.cell
+def _(portfolio):
+    total_cost = 0
+    for holding in portfolio:
+        total_cost = total_cost + holding["Shares"] * holding["Price"]
+    total_cost
     return
 
 
