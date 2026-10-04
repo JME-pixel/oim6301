@@ -779,11 +779,15 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    one rowis the is the country it came from and  another idcustome is the perosnal ID for the person
-    """)
+@app.cell
+def _():
+    import marimo as mo
+
+    return (mo,)
+
+
+@app.cell
+def _():
     return
 
 
