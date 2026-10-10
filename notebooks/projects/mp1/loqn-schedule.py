@@ -106,6 +106,21 @@ def _(mo):
 
 @app.cell
 def _():
+    loan_amount = 400000
+    annual_rates = {30: 0.0703, 15: 0.0642}
+    val = 0
+    while val != "15" and val != "30":
+        print("How many years do you want your payment installment to be 15 or 30? ")
+        val = input()
+    val = int(val)
+    balance = round(loan_amount,2)
+    r = round((annual_rates[val]/12),2)
+    for n in range(val*12):
+        interest = round(balance * r,2)
+        payment = round(loan_amount * r / (1 - (1 + r) ** -(val*12)),2)
+        balance = round(balance - payment + interest,2)
+        hello = f"Month: {n+1}\nPayment: ${payment}\nInterest: ${interest}\nPrincipals: ${payment-interest}\nBalance Left: ${balance}"
+        print(hello)
     return
 
 

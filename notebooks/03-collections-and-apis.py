@@ -609,6 +609,7 @@ def _(requests):
         "&temperature_unit=fahrenheit&wind_speed_unit=mph"
         "&timezone=America/New_York"
     )
+    print(babson_url)
     babson_reply = requests.get(babson_url, timeout=10)
     babson_reply.status_code
     return (babson_reply,)
@@ -781,6 +782,11 @@ def _(mo):
     mo.md(r"""
     > **Advanced · H · A week of forecasts.** Add `&daily=temperature_2m_max,temperature_2m_min` to the Babson address. The `daily` part of the reply holds three lists side by side: dates, highs and lows, matched by position. [Python §19](/handbooks/python/02-collections/#19-choosing-a-data-structure) shows how that shape goes wrong. Turn it into a list of dictionaries, one per day, each with a date, a high and a low.
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
