@@ -121,7 +121,59 @@ def _():
         balance = round(balance - payment + interest,2)
         hello = f"Month: {n+1}\nPayment: ${payment}\nInterest: ${interest}\nPrincipals: ${payment-interest}\nBalance Left: ${balance}"
         print(hello)
+    return annual_rates, interest, loan_amount
+
+
+@app.cell(hide_code=True)
+def _(annual_rates, interest, loan_amount):
+    # 30-year loan schedule
+    r30 = annual_rates[30] / 12
+    n30 = 30 * 12
+    payment30 = round(loan_amount * r30 / (1 - (1 + r30) ** -n30), 2)
+
+    balances = loan_amount
+    total_interest_30 = 0
+    for month in range(1, n30 + 1):
+        interests = round(balances * r30, 2)
+        if month == n30:
+            principal = balances
+            payments = round(interests + principal, 2)
+            balance = 0
+        else:
+            principal = round(payment30 - interest, 2)
+            payments = payment30
+            balances = round(balances - principal, 2)
+        total_interest_30 = round(total_interest_30 + interests, 2)
+        print(f"Month: {month}\nPayment: ${payments}\nInterest: ${interest}\nPrincipal: ${principal}\nBalance Left: ${balances}")
+
+    total_interest_30
     return
+
+
+@app.cell
+def _(annual_rates, loan_amount):
+    # 15-year loan schedule
+    r15 = annual_rates[15] / 12
+    n15 = 15 * 12
+    payment15 = round(loan_amount * r15 / (1 - (1 + r15) ** -n15), 2)
+
+    balance15 = loan_amount
+    total_interest_15 = 0
+    for month in range(1, n15 + 1):
+        interest = round(balance15 * r15, 2)
+        if month == n15:
+            principal = balance15
+            payment = round(interest + principal, 2)
+            balance15 = 0
+        else:
+            principal = round(payment15 - interest, 2)
+            payment = payment15
+            balance15 = round(balance15 - principal, 2)
+        total_interest_15 = round(total_interest_15 + interest, 2)
+        print(f"Month: {month}\nPayment: ${payment}\nInterest: ${interest}\nPrincipal: ${principal}\nBalance Left: ${balance15}")
+
+    total_interest_15
+    return (interest,)
 
 
 @app.cell(hide_code=True)
