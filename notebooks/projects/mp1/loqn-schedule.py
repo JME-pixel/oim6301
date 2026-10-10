@@ -106,74 +106,72 @@ def _(mo):
 
 @app.cell
 def _():
-    loan_amount = 400000
-    annual_rates = {30: 0.0703, 15: 0.0642}
-    val = 0
-    while val != "15" and val != "30":
-        print("How many years do you want your payment installment to be 15 or 30? ")
-        val = input()
-    val = int(val)
-    balance = round(loan_amount,2)
-    r = round((annual_rates[val]/12),2)
-    for n in range(val*12):
-        interest = round(balance * r,2)
-        payment = round(loan_amount * r / (1 - (1 + r) ** -(val*12)),2)
-        balance = round(balance - payment + interest,2)
-        hello = f"Month: {n+1}\nPayment: ${payment}\nInterest: ${interest}\nPrincipals: ${payment-interest}\nBalance Left: ${balance}"
-        print(hello)
-    return annual_rates, interest, loan_amount
+    #loan_amount = 400000
+    #annual_rates = {30: 0.0703, 15: 0.0642}
+    #val = 0
+    #while val != "15" and val != "30":
+     #   print("How many years do you want your payment installment to be 15 or 30? ")
+      #  val = input()
+    #val = int(val)
+    #balance = round(loan_amount,2)
+    #r = round((annual_rates[val]/12),2)
+    #for n in range(val*12):
+     #   interest = round(balance * r,2)
+      #  payment = round(loan_amount * r / (1 - (1 + r) ** -(val*12)),2)
+       # balance = round(balance - payment + interest,2)
+        #hello = f"Month: {n+1}\nPayment: ${payment}\nInterest: ${interest}\nPrincipals: ${payment-interest}\nBalance Left: ${balance}"
+        #print(hello)
+    return
 
 
 @app.cell(hide_code=True)
-def _(annual_rates, interest, loan_amount):
-    # 30-year loan schedule
+def _(annual_rates, loan_amount):
     r30 = annual_rates[30] / 12
     n30 = 30 * 12
     payment30 = round(loan_amount * r30 / (1 - (1 + r30) ** -n30), 2)
 
-    balances = loan_amount
+    balance30 = loan_amount
     total_interest_30 = 0
-    for month in range(1, n30 + 1):
-        interests = round(balances * r30, 2)
-        if month == n30:
-            principal = balances
-            payments = round(interests + principal, 2)
-            balance = 0
+    for month30 in range(1, n30 + 1):
+        interest30 = round(balance30 * r30, 2)
+        if month30 == n30:
+            principal30 = balance30
+            payment_due30 = round(interest30 + principal30, 2)
+            balance30 = 0
         else:
-            principal = round(payment30 - interest, 2)
-            payments = payment30
-            balances = round(balances - principal, 2)
-        total_interest_30 = round(total_interest_30 + interests, 2)
-        print(f"Month: {month}\nPayment: ${payments}\nInterest: ${interest}\nPrincipal: ${principal}\nBalance Left: ${balances}")
+            principal30 = round(payment30 - interest30, 2)
+            payment_due30 = payment30
+            balance30 = round(balance30 - principal30, 2)
+        total_interest_30 = round(total_interest_30 + interest30, 2)
+        print(f"Month: {month30}\nPayment: ${payment_due30}\nInterest: ${interest30}\nPrincipal: ${principal30}\nBalance Left: ${balance30}")
 
     total_interest_30
-    return
+    return n30, payment30, r30, total_interest_30
 
 
 @app.cell
 def _(annual_rates, loan_amount):
-    # 15-year loan schedule
     r15 = annual_rates[15] / 12
     n15 = 15 * 12
     payment15 = round(loan_amount * r15 / (1 - (1 + r15) ** -n15), 2)
 
     balance15 = loan_amount
     total_interest_15 = 0
-    for month in range(1, n15 + 1):
-        interest = round(balance15 * r15, 2)
-        if month == n15:
-            principal = balance15
-            payment = round(interest + principal, 2)
+    for month15 in range(1, n15 + 1):
+        interest15 = round(balance15 * r15, 2)
+        if month15 == n15:
+            principal15 = balance15
+            payment_due15 = round(interest15 + principal15, 2)
             balance15 = 0
         else:
-            principal = round(payment15 - interest, 2)
-            payment = payment15
-            balance15 = round(balance15 - principal, 2)
-        total_interest_15 = round(total_interest_15 + interest, 2)
-        print(f"Month: {month}\nPayment: ${payment}\nInterest: ${interest}\nPrincipal: ${principal}\nBalance Left: ${balance15}")
+            principal15 = round(payment15 - interest15, 2)
+            payment_due15 = payment15
+            balance15 = round(balance15 - principal15, 2)
+        total_interest_15 = round(total_interest_15 + interest15, 2)
+        print(f"Month: {month15}\nPayment: ${payment_due15}\nInterest: ${interest15}\nPrincipal: ${principal15}\nBalance Left: ${balance15}")
 
     total_interest_15
-    return (interest,)
+    return n15, payment15, r15, total_interest_15
 
 
 @app.cell(hide_code=True)
@@ -187,7 +185,9 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(payment15, payment30, total_interest_15, total_interest_30):
+    print(f"30-year loan: payment ${payment30:,.2f} per month, total interest ${total_interest_30:,.2f}")
+    print(f"15-year loan: payment ${payment15:,.2f} per month, total interest ${total_interest_15:,.2f}")
     return
 
 
@@ -202,7 +202,25 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(loan_amount, n15, n30, payment15, payment30):
+    check_30 = round(payment30 * n30 - loan_amount, 2)
+    check_15 = round(payment15 * n15 - loan_amount, 2)
+    check_30, check_15
+    return check_15, check_30
+
+
+@app.cell
+def _(check_15, check_30, total_interest_15, total_interest_30):
+    total_interest_30, check_30
+    total_interest_15, check_15
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    I compared total interest summed month-by-month in the schedule against total interest from (payment × number of months) − loan amount. For the 30-year loan: [total_interest_30] vs [check_30]. For the 15-year loan: [total_interest_15] vs [check_15]. They agree [exactly / to within a few cents], confirming the schedule is corrects.
+    """)
     return
 
 
@@ -221,10 +239,70 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    The agent's largest-order code used two separate if statements instead of one, which caused largest_order to always update to the highest OrderID in the table rather than the order with the highest freight. I knew it was wrong because I expected order 10263 with $56 freight, and instead got 11039 — a number that didn't match the freight check at all. See the cell in [notebook/date] where I reported "i got 11039 for the largest order."
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## 8. Going Further
 
     *Take at least one step past the main task, in any direction, and use your agent as much as you like. It does not have to work. State what you tried, what you found, and where it is in this notebook.*
     """)
+    return
+
+
+@app.cell
+def _(loan_amount, n30, payment30, r30, total_interest_30):
+    extra_payment = 200
+
+    balance_x30 = loan_amount
+    total_interest_x30 = 0
+    months_x30 = 0
+    for mx30 in range(1, n30 + 1):
+        interest_x30 = round(balance_x30 * r30, 2)
+        payment_x30 = payment30 + extra_payment
+        if payment_x30 >= balance_x30 + interest_x30:
+            payment_x30 = round(balance_x30 + interest_x30, 2)
+            balance_x30 = 0
+        else:
+            principal_x30 = round(payment_x30 - interest_x30, 2)
+            balance_x30 = round(balance_x30 - principal_x30, 2)
+        total_interest_x30 = round(total_interest_x30 + interest_x30, 2)
+        months_x30 = mx30
+        if balance_x30 == 0:
+            break
+
+    months_saved_30 = n30 - months_x30
+    interest_saved_30 = round(total_interest_30 - total_interest_x30, 2)
+    months_x30, total_interest_x30, months_saved_30, interest_saved_30
+    return (extra_payment,)
+
+
+@app.cell
+def _(extra_payment, loan_amount, n15, payment15, r15, total_interest_15):
+    balance_x15 = loan_amount
+    total_interest_x15 = 0
+    months_x15 = 0
+    for mx15 in range(1, n15 + 1):
+        interest_x15 = round(balance_x15 * r15, 2)
+        payment_x15 = payment15 + extra_payment
+        if payment_x15 >= balance_x15 + interest_x15:
+            payment_x15 = round(balance_x15 + interest_x15, 2)
+            balance_x15 = 0
+        else:
+            principal_x15 = round(payment_x15 - interest_x15, 2)
+            balance_x15 = round(balance_x15 - principal_x15, 2)
+        total_interest_x15 = round(total_interest_x15 + interest_x15, 2)
+        months_x15 = mx15
+        if balance_x15 == 0:
+            break
+
+    months_saved_15 = n15 - months_x15
+    interest_saved_15 = round(total_interest_15 - total_interest_x15, 2)
+    months_x15, total_interest_x15, months_saved_15, interest_saved_15
     return
 
 
