@@ -45,7 +45,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The people who would us this are people who want to buy a house. Also if they want to be the most finacially responsible they can use this.
+    A person ready to buy a house often has to chose between a 15 year or 30 year loan. So my tool would be use by people that want to compare the 30 year loan with the 15 year loan, to see how much difference there is in total interest. The comparison would be easier to see given  interest rate and the length of the payment to see how much more you would pay in the 30 year loan instead of the 15 year loan.
     """)
     return
 
@@ -85,13 +85,16 @@ def _(mo):
     return
 
 
-app._unparsable_cell(
-    r"""
+@app.cell
+def _():
     loan_amount = 400000
-    annual_rates = {30: 0.0703, 15: 0.0642}our inputs.
-    """,
-    name="_"
-)
+    annual_rates = {30: 0.0703, 15: 0.0642}
+    return annual_rates, loan_amount
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell(hide_code=True)
@@ -106,21 +109,41 @@ def _(mo):
 
 @app.cell
 def _():
-    #loan_amount = 400000
-    #annual_rates = {30: 0.0703, 15: 0.0642}
-    #val = 0
-    #while val != "15" and val != "30":
-     #   print("How many years do you want your payment installment to be 15 or 30? ")
-      #  val = input()
-    #val = int(val)
-    #balance = round(loan_amount,2)
-    #r = round((annual_rates[val]/12),2)
-    #for n in range(val*12):
-     #   interest = round(balance * r,2)
-      #  payment = round(loan_amount * r / (1 - (1 + r) ** -(val*12)),2)
-       # balance = round(balance - payment + interest,2)
-        #hello = f"Month: {n+1}\nPayment: ${payment}\nInterest: ${interest}\nPrincipals: ${payment-interest}\nBalance Left: ${balance}"
-        #print(hello)
+    loan_amt = 400000
+    term_rates = {30: 0.0703, 15: 0.0642}
+    term_choice = 0
+    while term_choice != "15" and term_choice != "30":
+       print("How many years do you want your payment installment to be 15 or 30? ")
+       term_choice = input()
+    term_choice = int(term_choice)
+    remaining_balance = round(loan_amt,2)
+    monthly_rate = round((term_rates[term_choice]/12),2)
+    for month_num in range(term_choice*12):
+       interest_amt = round(remaining_balance * monthly_rate,2)
+       payment_amt = round(loan_amt * monthly_rate / (1 - (1 + monthly_rate) ** -(term_choice*12)),2)
+       remaining_balance = round(remaining_balance - payment_amt + interest_amt,2)
+    summary = f"Month: {month_num+1}\nPayment: ${payment_amt}\nInterest: ${interest_amt}\nPrincipals: ${payment_amt-interest_amt}\nBalance Left: ${remaining_balance}"
+    print(summary)
+    return
+
+
+@app.cell
+def _():
+    # loan_amount = 400000
+    # annual_rates = {30: 0.0703, 15: 0.0642}
+    # val = 0
+    # while val != "15" and val != "30":
+    #    print("How many years do you want your payment installment to be 15 or 30? ")
+    #    val = input()
+    # val = int(val)
+    # balance = round(loan_amount,2)
+    # r = round((annual_rates[val]/12),2)
+    # for n in range(val*12):
+    #    interest = round(balance * r,2)
+    #    payment = round(loan_amount * r / (1 - (1 + r) ** -(val*12)),2)
+    #    balance = round(balance - payment + interest,2)
+    # hello = f"Month: {n+1}\nPayment: ${payment}\nInterest: ${interest}\nPrincipals: ${payment-interest}\nBalance Left: ${balance}"
+    # print(hello)
     return
 
 
@@ -132,6 +155,7 @@ def _(annual_rates, loan_amount):
 
     balance30 = loan_amount
     total_interest_30 = 0
+    total_paid_30 =0
     for month30 in range(1, n30 + 1):
         interest30 = round(balance30 * r30, 2)
         if month30 == n30:
@@ -143,10 +167,11 @@ def _(annual_rates, loan_amount):
             payment_due30 = payment30
             balance30 = round(balance30 - principal30, 2)
         total_interest_30 = round(total_interest_30 + interest30, 2)
-        print(f"Month: {month30}\nPayment: ${payment_due30}\nInterest: ${interest30}\nPrincipal: ${principal30}\nBalance Left: ${balance30}")
+        total_paid_30 =round(total_paid_30 + payment_due30, 2)
+        print(f"Month: {month30:.2f}\tPayment: ${payment_due30:.2f}\tInterest: ${interest30}\tPrincipal: ${principal30:.2f}\tBalance Left: ${balance30:.2f}")
 
     total_interest_30
-    return n30, payment30, r30, total_interest_30
+    return n30, payment30, r30, total_interest_30, total_paid_30
 
 
 @app.cell
@@ -157,6 +182,7 @@ def _(annual_rates, loan_amount):
 
     balance15 = loan_amount
     total_interest_15 = 0
+    total_paid_15 = 0
     for month15 in range(1, n15 + 1):
         interest15 = round(balance15 * r15, 2)
         if month15 == n15:
@@ -168,10 +194,11 @@ def _(annual_rates, loan_amount):
             payment_due15 = payment15
             balance15 = round(balance15 - principal15, 2)
         total_interest_15 = round(total_interest_15 + interest15, 2)
-        print(f"Month: {month15}\nPayment: ${payment_due15}\nInterest: ${interest15}\nPrincipal: ${principal15}\nBalance Left: ${balance15}")
+        total_paid_15 = round(total_paid_15 + payment_due15, 2)
+        print(f"Month: {month15}\tPayment: ${payment_due15:.2f}\tInterest: ${interest15:.2f}\tPrincipal: ${principal15:.2f}\tBalance Left: ${balance15:.2f}")
 
     total_interest_15
-    return n15, payment15, r15, total_interest_15
+    return n15, payment15, r15, total_interest_15, total_paid_15
 
 
 @app.cell(hide_code=True)
@@ -194,6 +221,14 @@ def _(payment15, payment30, total_interest_15, total_interest_30):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    The 15 year loan cost 797.59 more per month, but saves you  336,906.69 dollars in total interest over the full life of the loan. So if you can afford the higher monthly payment, the 15 year loan is the better choice.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ## 6. How I Know These Numbers Are Right
 
     *At least one check that reaches a result a second, independent way. Name what you compared and what came out.*
@@ -202,24 +237,24 @@ def _(mo):
 
 
 @app.cell
-def _(loan_amount, n15, n30, payment15, payment30):
-    check_30 = round(payment30 * n30 - loan_amount, 2)
-    check_15 = round(payment15 * n15 - loan_amount, 2)
-    check_30, check_15
-    return check_15, check_30
-
-
-@app.cell
-def _(check_15, check_30, total_interest_15, total_interest_30):
-    total_interest_30, check_30
-    total_interest_15, check_15
+def _(
+    loan_amount,
+    total_interest_15,
+    total_interest_30,
+    total_paid_15,
+    total_paid_30,
+):
+    check_30 =round(total_paid_30 - loan_amount, 2)
+    check_15 = round(total_paid_15 - loan_amount, 2)
+    print(F"30 year:total interest ${total_interest_30:,.2f},check ${check_30:,.2f}")
+    print(f"15 year:total interest ${total_interest_15:,.2f},check ${check_15:,.2f}")
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    I compared total interest summed month-by-month in the schedule against total interest from (payment × number of months) − loan amount. For the 30-year loan: [total_interest_30] vs [check_30]. For the 15-year loan: [total_interest_15] vs [check_15]. They agree [exactly / to within a few cents], confirming the schedule is corrects.
+    I compared total interest summed month-by-month in the schedule against the total of all actual payments made minus the loan amount. For the 30-year loan: $560,942.03 vs $560,942.03. For the 15-year loan: $224,035.34 vs $224,035.34. They agree exactly, confirming the schedule is correct.
     """)
     return
 
@@ -239,7 +274,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    The agent's largest-order code used two separate if statements instead of one, which caused largest_order to always update to the highest OrderID in the table rather than the order with the highest freight. I knew it was wrong because I expected order 10263 with $56 freight, and instead got 11039 — a number that didn't match the freight check at all. See the cell in [notebook/date] where I reported "i got 11039 for the largest order."
+    When I first asked the agent to help me check that my total interest was correct, it wrote check_30 = payment30 * n30 - loan_amount, which assumed every single month's payment was the same size. This gave check_30 = 560,937.20, but my schedule's actual total interest was 560,942.03 — a $4.83 gap. I knew something was wrong because these two numbers were supposed to match exactly, and they didn't. The problem was that the last month's payment is not the same as every other month's payment; it's adjusted to exactly pay off whatever balance is left. I fixed it by adding a running total inside my loop, total_paid_30 = round(total_paid_30 + payment_due30, 2), which adds up the real payment made each month, including that different last one. Then I changed the check to total_paid_30 - loan_amount. After that, the check matched the schedule's total interest exactly, $560,942.03 to $560,942.03. This is in the section 6 cells of this notebook, the 30-year amortization loop and the check cell right after it.
     """)
     return
 
