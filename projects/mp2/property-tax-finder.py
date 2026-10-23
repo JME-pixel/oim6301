@@ -44,7 +44,7 @@ def _(mo):
 
     /// admonition | Your answer
         type: info
-
+    The person who would use this is a person who is looking for jobs and trying to see where they want to live in Massachusetts. Then they are trying to calculate the net income they get from their paycheck to be able to budget for their living expenses in that area.
 
     ///
     """)
@@ -69,25 +69,16 @@ def _(mo):
         type: info
 
     1. Type here.
-    2.
-    3.
-    4.
-    5.
+    2.I am going to look at the API and see what type of data is in the data set and the structure my code and AI need for the format.
+    3. Then I am going to make sure I usethe right API to get the question right.
+    4. I am also going to probably create a for loop for the code to loop through the records returned by the API to make sure it hits the budget limit
+    5. The I am going to puch check makrs in place
 
     ///
 
-    ### 2b. Which functions will your tool need?
+    ### 2b. Guess code
+    IN the next cell
 
-    *For each: what goes in and what comes out.*
-
-    /// admonition | Your functions
-        type: info
-
-    | Function | Goes in | Comes out |
-    |---|---|---|
-    | | | |
-    | | | |
-    | | | |
 
     ///
 
@@ -97,7 +88,7 @@ def _(mo):
         type: info
 
     Type here.
-
+     This is a hypothesis: I think they will request wesllsey for the job or middlesex
     ///
 
     ### 2d. How will you know you have every record?
@@ -105,7 +96,7 @@ def _(mo):
     /// admonition | Your answer
         type: info
 
-    Type here.
+    Type here. I will Know because I will pull it from the APIand check that the number of records I collect matches the total count reported by the API, either in the response metadata or by paging until no more records are returned.
 
     ///
 
@@ -116,14 +107,133 @@ def _(mo):
 
     Check:
 
-    Number A:
+    Number A:The average bill the API reports for a town in fiscal year 2026.
 
-    Number B:
+    Number B:That same town’s average home value times its residential tax rate, divided by 1,000.
+
+
 
     ///
 
     *Commit this notebook with the message `mp2: plan before AI`.*
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    My Tryng code.
+    """)
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    # ---------- Work: functions ----------
+    import requests
+
+    BASE = "https://oim.zhili.dev"
+
+
+    def get_all_towns(county):
+        """In: county name. Out: (list of towns, total the API reports)."""
+        r = requests.get(
+            f"{BASE}/ma/towns",
+            params={"county": county, "per_page": 100},
+            timeout=10,
+        )
+        r.raise_for_status()
+        data = r.json()
+        return data["items"], data["pagination"]["total"]
+
+
+    def get_town_year(dor_code, year):
+        """In: dor_code, fiscal year. Out: that year's figures."""
+        r = requests.get(f"{BASE}/ma/towns/{dor_code}/history", timeout=10)
+        r.raise_for_status()
+        return r.json()["years"][0]
+
+
+    def filter_towns(rows, budget, limit):
+        """In: town rows, budget, tax limit. Out: passing towns, cheapest bill first."""
+        passing = [r for r in rows if r["value"] <= budget or r["bill"] < limit]
+        return sorted(passing, key=lambda r: r["bill"], reverse=True)
+
+    return filter_towns, get_all_towns, get_town_year
+
+
+@app.cell
+def _(
+    budget_dollars,
+    county,
+    filter_towns,
+    fiscal_year,
+    get_all_towns,
+    get_town_year,
+    tax_limit_dollars,
+):
+    # ---------- Work: run ----------
+    towns, api_total = get_all_towns(county)
+
+    rows = []
+    for t in towns:
+        figures = get_town_year(t["dor_code"], fiscal_year)
+        if figures is None:
+            continue
+        value = figures["average_single_family_value_dollars"]
+        rate = figures["residential_rate_per_thousand"]
+        bill = figures["average_single_family_bill_dollars"]
+        if value is None or rate is None or bill is None:
+            continue
+        rows.append({"town": t["name"], "value": value, "rate": rate, "bill": bill})
+
+    results = filter_towns(rows, budget_dollars, tax_limit_dollars)
+    print(f"Skipped {len(towns) - len(rows)} towns with missing {fiscal_year} data")
+    return api_total, results, towns
+
+
+@app.cell
+def _(results):
+    # ---------- Answer: table ----------
+    print(f"{'Town':<22}{'Avg home value':>16}{'Tax rate':>10}{'Avg bill':>12}")
+    print("-" * 60)
+    for r in results:
+        print(f"{r['town']:<22}${r['value']:>14,.0f}{r['rate']:>10.2f}${r['bill']:>10,.0f}")
+    return
+
+
+@app.cell
+def _(budget_dollars, county, results, tax_limit_dollars):
+    if results:
+        _best = results[0]
+        print(
+            f"{len(results)} towns in {county} County fit a ${budget_dollars:,} budget "
+            f"and a ${tax_limit_dollars:,} tax limit; the cheapest is {_best['town']} "
+            f"at ${_best['bill']:,.0f} a year on a ${_best['value']:,.0f} home."
+        )
+    else:
+        print(
+            f"No town in {county} County fits ${budget_dollars:,} "
+            f"and ${tax_limit_dollars:,}."
+        )
+    return
+
+
+@app.cell
+def _(api_total, results, towns):
+    # ---------- Check (section 6) ----------
+    if results:
+        _top = results[0]
+        _computed = _top["value"] * _top["rate"] / 1000
+        print(f"API bill: ${_top['bill']:,.2f}   value x rate / 1000: ${_computed:,.2f}")
+
+    print(f"Collected: {len(towns)}   API total: {api_total}")
     return
 
 
@@ -144,7 +254,7 @@ def _():
     budget_dollars = 700000
     tax_limit_dollars = 8000
     fiscal_year = 2026
-    return
+    return budget_dollars, county, fiscal_year, tax_limit_dollars
 
 
 @app.cell(hide_code=True)
