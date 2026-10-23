@@ -130,7 +130,6 @@ app._unparsable_cell(
         for cost_so_far = 0
         for stock in holdings:
             cost_so_far = stock[1]*stock[2]
-        
     """,
     name="_"
 )
@@ -192,12 +191,62 @@ def _(mo):
     return
 
 
+@app.cell
+def _(holdings, retirement_holdings):
+    def count_shares(portfolio):
+        total = 0
+        for symbol, shares, price in portfolio:
+            total = total + shares
+        return total
+
+    count_shares(holdings), count_shares(retirement_holdings)
+    return
+
+
+@app.cell
+def _(holdings, retirement_holdings):
+    def find_largest(portfolio):
+        best_symbol = portfolio[0][0]
+        best_cost = portfolio[0][1] * portfolio[0][2]
+        for symbol, shares, price in portfolio:
+            cost = shares * price
+            if cost > best_cost:
+                best_symbol = symbol
+                best_cost = cost
+        return (best_symbol, best_cost)
+
+    find_largest(holdings), find_largest(retirement_holdings)
+    
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## ✏️ B · Without `return`
 
     Copy `count_shares` into a new cell under a new name, and put `print(...)` where the `return` was. Call it and keep the result in a name. In a markdown cell under it, answer: what does that name hold, and what could the next cell do with it?
+    """)
+    return
+
+
+@app.cell
+def _(holdings):
+    def count_shares_print(portfolio):
+        total = 0
+        for symbol, shares, price in portfolio:
+            total = total + shares
+        print(total)
+
+    result = count_shares_print(holdings)
+    result
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    result holds None. The next cell can't use it for anything;  you can't add None to another number or compare it — because the 600 only ever appeared on screen, it was never handed back.
     """)
     return
 
@@ -337,6 +386,36 @@ def _(mo):
     return
 
 
+@app.cell
+def _(requests):
+
+    def get_temperature(town):
+        town_reply = requests.get(
+            "https://geocoding-api.open-meteo.com/v1/search",
+            params={"name": town, "count": 1},
+            timeout=10,
+        )
+        town_info = town_reply.json()["results"][0]
+        town_lat = town_info["latitude"]
+        town_lon = town_info["longitude"]
+
+        weather_reply = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": town_lat,
+                "longitude": town_lon,
+                "current": "temperature_2m",
+                "temperature_unit": "fahrenheit",
+            },
+            timeout=10,
+        )
+        return weather_reply.json()["current"]["temperature_2m"]
+
+    get_temperature("Wellesley")
+
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -345,6 +424,14 @@ def _(mo):
     Open [oim.zhili.dev/docs](https://oim.zhili.dev/docs) and find `/ma/towns`. Use its parameters to ask for the five Norfolk towns with the highest income per person, highest first. Let the server do the sorting.
 
     *Check yourself: Dover, Wellesley, Cohasset, Needham, Westwood.*
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    I checked and you are correct.
     """)
     return
 
@@ -362,6 +449,61 @@ def _(mo):
 
     **Going further.** Write `town_history(name)`, which takes a town's name, makes both requests, and returns the history.
     """)
+    return
+
+
+@app.cell
+def _(requests):
+    wellesley_reply = requests.get(
+        "https://oim.zhili.dev/ma/towns",
+        params={"name": "Wellesley"},
+        timeout=10,
+    )
+    wellesley_reply.json()
+    return (wellesley_reply,)
+
+
+@app.cell
+def _(wellesley_reply):
+    wellesley_towns = wellesley_reply.json()["items"]
+    wellesley_dor_code = wellesley_towns[0]["dor_code"]
+    wellesley_dor_code
+    return (wellesley_dor_code,)
+
+
+@app.cell
+def _(requests, wellesley_dor_code):
+    history_reply = requests.get(
+        f"https://oim.zhili.dev/ma/towns/{wellesley_dor_code}/history",
+        params={"fiscal_year": 2026},
+        timeout=10,
+    )
+    history_reply.json()
+    return (history_reply,)
+
+
+@app.cell
+def _(history_reply):
+    history_reply.json()
+    return
+
+
+@app.cell
+def _(history_reply):
+    history_years = history_reply.json()["years"]
+
+    for year_record in history_years:
+        if year_record["fiscal_year"] == 2026:
+            history_2026 = year_record
+
+    history_2026
+    return (history_2026,)
+
+
+@app.cell
+def _(history_2026):
+    checked_bill = history_2026["average_single_family_value_dollars"] * history_2026["residential_rate_per_thousand"] / 1000
+    round(checked_bill, 2)
     return
 
 
@@ -446,6 +588,21 @@ def _(mo):
     return
 
 
+@app.cell
+def _(get_page):
+    def get_all_towns():
+        first_page = get_page(1)
+        pages = first_page["pagination"]["pages"]
+        all_towns = first_page["items"]
+        for page in range(2, pages + 1):
+            all_towns = all_towns + get_page(page)["items"]
+        return all_towns
+
+    all_towns = get_all_towns()
+    len(all_towns)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -492,6 +649,19 @@ def _(mo):
 
     **Going further.** Post something more useful than one town's bill: choose a question somebody would ask, answer it from live data, and post the answer, in 140 characters or fewer.
     """)
+    return
+
+
+@app.cell
+def _(requests):
+    board_reply = requests.post(
+        "https://oim.zhili.dev/message",
+        headers={"x-token": "JME-pixel"},
+        json={"message": f"HI from isaiah"},
+        timeout=10,
+    )
+    board_reply.status_code, board_reply.json()
+
     return
 
 
