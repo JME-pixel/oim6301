@@ -68,17 +68,22 @@ def _(mo):
         type: info
 
     1. Open the towns endpoint and the history endpoint in my browser to see what fields come back and what type each one is (text, number, etc.).
-    2.Decide what makes a town pass: its average home value must be under my budget, and its average tax bill must be under my limit, both for the fiscal year I care about.
+    2. Decide what makes a town pass: its average home value must be under my budget, and its average tax bill must be under my limit, both for the fiscal year I care about.
     3. Write one function that gets every town in a county, using the total the API reports so I know when I have them all.
-    4.Write one function that gets one town's figures for a specific fiscal year, by checking each year in its history instead of assuming the year I want is first in the list.
+    4. Write one function that gets one town's figures for a specific fiscal year, by checking each year in its history instead of assuming the year I want is first in the list.
     5. Loop through every town, pull its figures, skip any town missing data for that year, and count how many I skip. Then keep only the towns under both limits, sorted from cheapest bill to most expensive.
 
     ///
 
-    ### 2b. Guess code and Which functions will i need
-    IN the next cell
+    ### 2b. Which functions will your tool need? For each, what goes in and what comes out?
+
+    /// admonition | Your functions
+        type: info
+
     get_all_towns(county) — in: a county name. Out: the list of towns in that county, and the total count the API reports.
+
     get_town_year(dor_code, year) — in: a town's code and a fiscal year. Out: that town's figures for that year, or nothing if it's missing.
+
     filter_towns(rows, budget, limit) — in: the list of town figures, a budget, and a tax limit. Out: the towns that pass both limits, cheapest bill first.
 
     ///
@@ -88,9 +93,8 @@ def _(mo):
     /// admonition | Your addresses
         type: info
 
-    Type here.
-     This is a hypothesis: I think they will request wesllsey for the job or middlesex
-     https://oim.zhili.dev/ma/towns?county=Middlesex to get every town in the county, and https://oim.zhili.dev/ma/towns/{dor_code}/history once per town, to get each town's figures by year.
+    https://oim.zhili.dev/ma/towns?county=Middlesex to get every town in the county, and https://oim.zhili.dev/ma/towns/{dor_code}/history once per town, to get each town's figures by year.
+
     ///
 
     ### 2d. How will you know you have every record?
@@ -98,7 +102,7 @@ def _(mo):
     /// admonition | Your answer
         type: info
 
-    Type here. I will Know because I will pull it from the APIand check that the number of records I collect matches the total count reported by the API, either in the response metadata or by paging until no more records are returned.
+    I will know because I will pull it from the API and check that the number of records I collect matches the total count reported by the API, either in the response metadata or by paging until no more records are returned.
 
     ///
 
@@ -109,11 +113,9 @@ def _(mo):
 
     Check:
 
-    Number A:The average bill the API reports for a town in fiscal year 2026.
+    Number A: The average bill the API reports for a town in fiscal year 2026.
 
-    Number B:That same town’s average home value times its residential tax rate, divided by 1,000.
-
-
+    Number B: That same town's average home value times its residential tax rate, divided by 1,000.
 
     ///
 
@@ -460,6 +462,65 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    CODE FOR SECTION 9
+    """)
+    return
+
+
+@app.cell
+def _(
+    budget_dollars,
+    filter_towns,
+    fiscal_year,
+    get_all_towns,
+    get_town_year,
+    tax_limit_dollars,
+):
+    # Going further: try a second county with the same budget and tax limit
+    second_county = "Worcester"
+
+    towns2, api_total2 = get_all_towns(second_county)
+
+    rows2 = []
+    for t2 in towns2:
+        figures2 = get_town_year(t2["dor_code"], fiscal_year)
+        if figures2 is None:
+            continue
+        value2 = figures2["average_single_family_value_dollars"]
+        rate2 = figures2["residential_rate_per_thousand"]
+        bill2 = figures2["average_single_family_bill_dollars"]
+        if value2 is None or rate2 is None or bill2 is None:
+            continue
+        rows2.append({"town": t2["name"], "value": value2, "rate": rate2, "bill": bill2})
+
+    results2 = filter_towns(rows2, budget_dollars, tax_limit_dollars)
+    print(f"Skipped {len(towns2) - len(rows2)} of {len(towns2)} towns in {second_county}: no {fiscal_year} data.")
+    return results2, second_county
+
+
+@app.cell
+def _(
+    budget_dollars,
+    county,
+    results,
+    results2,
+    second_county,
+    tax_limit_dollars,
+):
+    # Table for the second county, same format as Section 5
+    print(f"{'Town':<22}{'Avg home value':>16}{'Tax rate':>10}{'Avg bill':>12}")
+    print("-" * 60)
+    for r2 in results2:
+        print(f"{r2['town']:<22}${r2['value']:>14,.0f}{r2['rate']:>10.2f}${r2['bill']:>10,.0f}")
+
+    print()
+    print(f"{len(results2)} towns in {second_county} County fit a ${budget_dollars:,} budget and a ${tax_limit_dollars:,} tax limit, versus {len(results)} in {county} County.")
+    return
+
+
 @app.cell
 def _(mo):
     mo.md(r"""
@@ -472,16 +533,15 @@ def _(mo):
 
     **What I tried:**
 
-    Type here.
+     I compared Worcester County to Middlesex County using the same budget and tax limit, by calling the same three functions (get_all_towns, get_town_year, filter_towns) on a second county.
 
     **What I found:**
 
-    Type here.
+    Worcester has far more towns that pass both limits than Middlesex, and its cheapest town, Royalston, has a much lower bill ($3,507) than Middlesex's cheapest, Malden ($4,952). This suggests the couple might get more and cheaper options if they're open to a different county.
 
     **Where it is in the notebook:**
 
-    Type here.
-
+    The two cells right above this Section 9 markdown, right after Section 8
     ///
     """)
     return
