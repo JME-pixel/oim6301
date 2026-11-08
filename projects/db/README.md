@@ -86,3 +86,12 @@ How to read the relationship ends:
 - One row of `payments` is one payment toward one order, by one method, for an amount in dollars.
 
 ## Design Choices
+
+
+**1. Key.** I used `member_id` as the key of `members` instead of the mobile number because members can change their mobile number. The ID stays the same for the life of the member, so every order stays tied to the same person.
+
+**2. Optional relationships.** The relationship between members and orders is optional, because customers can order without being members, so `orders.member_id` can be empty. The relationship between order lines and options is also optional, because a drink does not always carry an add on, so a line can have zero options.
+
+**3. A rule the tables cannot hold.** An order's payments must add up to the order's total, which is its lines and their options together. A `CHECK` constraint can only look at one row of one table, so it cannot compare payments with lines and options. I check it with a query instead: it totals the lines and options of each order, totals the payments of each order, and lists the orders where the two do not match.
+
+**4. One thing I checked in the ERD.** I checked the relationship between members and orders. An order has zero or one member, because customers who are not members can order, but a member can place many orders over time, so the ends read `|o--o{`.
