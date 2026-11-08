@@ -1,0 +1,26 @@
+product_id,name,category,price,cost,is_available
+1,Drip Coffee,coffee,2.75,0.45,true
+2,Americano,coffee,3.25,0.55,true
+3,Espresso,coffee,2.50,0.50,true
+4,Latte,coffee,4.50,0.95,true
+5,Cappuccino,coffee,4.25,0.90,true
+6,Flat White,coffee,4.75,1.00,true
+7,Mocha,coffee,5.00,1.20,true
+8,Cold Brew,coffee,4.25,0.70,true
+9,Iced Latte,coffee,4.75,1.00,true
+10,Pumpkin Spice Latte,coffee,5.25,1.10,false
+11,Cortado,coffee,3.75,0.80,true
+12,Black Tea,tea,2.50,0.35,true
+13,Green Tea,tea,2.50,0.35,true
+14,Herbal Tea,tea,2.50,0.35,false
+15,Chai Latte,tea,4.75,1.05,true
+16,Matcha Latte,tea,5.25,1.40,true
+17,Butter Croissant,food,3.50,1.10,true
+18,Blueberry Muffin,food,3.25,0.95,true
+19,Bagel with Cream Cheese,food,3.75,1.05,true
+20,Breakfast Sandwich,food,6.25,2.40,true
+21,Turkey Sandwich,food,8.50,3.30,true
+22,Avocado Toast,food,7.25,2.60,true
+23,Bottled Water,other,1.75,0.40,true
+24,Hot Cocoa,other,4.25,1.00,true
+25,Orange Juice,other,3.50,1.30,false
