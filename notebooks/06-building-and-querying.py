@@ -295,6 +295,33 @@ def _(mo):
     return
 
 
+@app.cell
+def _(database, duckdb):
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("INSERT INTO towns VALUES ('Wellesley', 'Norfolk', 10, 0, 0)")
+        duplicate_name = "accepted"
+    except duckdb.ConstraintException as _error:
+        duplicate_name = str(_error).splitlines()[0]
+
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("INSERT INTO towns VALUES ('Emptyville', 'Norfolk', 0, 0, 0)")
+        zero_population = "accepted"
+    except duckdb.ConstraintException as _error:
+        zero_population = str(_error).splitlines()[0]
+
+    try:
+        with duckdb.connect(database) as _con:
+            _con.execute("INSERT INTO towns VALUES ('Nowhere', 'Atlantis', 10, 0, 0)")
+        missing_county = "accepted"
+    except duckdb.ConstraintException as _error:
+        missing_county = str(_error).splitlines()[0]
+
+    duplicate_name, zero_population, missing_county
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -327,6 +354,18 @@ def _(mo):
     *Check yourself: Brookline, Newton, Cambridge, Somerville, Quincy.*
 
     **Going further.** Ask the same question of `counties` and `towns` together: which county is each of those five in, and what share of its county's people does each hold? That needs both tables at once, which the topic slides call a join.
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT name, population, average_single_family_bill_dollars
+        FROM towns
+        WHERE population > 50000
+        ORDER BY average_single_family_bill_dollars DESC
+        LIMIT 5
     """)
     return
 
@@ -388,6 +427,40 @@ def _(mo):
     return
 
 
+@app.cell
+def _(ask):
+    ask("""
+        SELECT county, count(*) AS towns
+        FROM towns
+        GROUP BY county
+        ORDER BY towns DESC
+    """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    The sum of the per-county counts has to equal the number of rows in `towns`, because `GROUP BY` sorts every row from `towns` into exactly one group, its county. No row is left out and no row is counted twice, so adding up all the group counts just counts every row in the table once, which is the same as `count(*)` on the whole table.
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT
+            county,
+            sum(population) AS total_population,
+            sum(CASE WHEN average_single_family_bill_dollars > 10000 THEN population ELSE 0 END)
+                / sum(population) AS high_bill_share
+        FROM towns
+        GROUP BY county
+        ORDER BY total_population DESC
+    """)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -436,7 +509,7 @@ def _(ask, mo, requests):
         _path.write_bytes(_reply.content)
     orders_file = _path.as_posix()
     ask(f"SELECT count(*) AS orders FROM '{orders_file}'")
-    return
+    return (orders_file,)
 
 
 @app.cell(hide_code=True)
@@ -446,6 +519,23 @@ def _(mo):
     2. For each country, the number of orders and the total of `Freight`, the most freight first. *Check yourself: USA with 2,328 orders and 573,251 in freight, then Germany with 2,193 and 537,189.75, then France with 1,778 and 442,055.75.*
 
     **Going further.** Rank the countries by freight per order instead, and see which countries move.
+    """)
+    return
+
+
+@app.cell
+def _(ask, orders_file):
+    ask(f"SELECT count(DISTINCT ShipCountry) AS countries FROM '{orders_file}'")
+    return
+
+
+@app.cell
+def _(ask, orders_file):
+    ask(f"""
+        SELECT ShipCountry, count(*) AS orders, sum(Freight) AS total_freight
+        FROM '{orders_file}'
+        GROUP BY ShipCountry
+        ORDER BY total_freight DESC
     """)
     return
 
@@ -473,6 +563,12 @@ def _(mo):
     - [ ] I can count groups with `GROUP BY`, keep some of them with `HAVING`, and check the counts against a total I know
     - [ ] I can save a query as a view and ask for it by name
     """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("SELECT sum(population) AS total FROM towns")
     return
 
 
