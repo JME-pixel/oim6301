@@ -701,16 +701,16 @@ def _(mo):
     **My prediction, committed as `db: prediction` before I ran the joins:**
     How many rows I expect the joins to produce before any grouping, and why.
 
-    WRITE YOUR PREDICTION HERE
+    
 
     I predict the joins will produce approximately 1,800 rows before grouping. There are 1,522 coffee and tea order lines. Since the query uses a LEFT JOIN, every order line will appear at least once, even if it has no add-ons. Some order lines have multiple add-ons, which will create additional rows.
 
-    WRITE WHAT YOU FOUND HERE
+   
 
    The data indicates that the joins produce 1,794 rows, so my prediction was very close. The difference happens because some order lines have multiple add-ons, causing them to appear more than once. Lines without add-ons still appear because of the LEFT JOIN.
 
-    WRITE YOURS HERE
-    Each row represents one coffee or tea product. It shows how many order lines included that product, the total number of add-ons selected, and the average number of add-ons per order line. This helps the café understand which drinks customers customize the most.)
+    
+    """)
     return
 
 
