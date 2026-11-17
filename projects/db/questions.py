@@ -655,8 +655,8 @@ def _(mo):
 
     *Write this section yourself, in your own words. Pick one piece of AI output you did not accept as is. What did it give you, what did you change, and how did you know? Point to the commit or the cell. If the agent got it right the first time, say what you did to verify it, and point to the check cell above.*
 
-    For Question 8, the AI gave me a SQL query to calculate the average number of add-ons for each coffee and tea product. Instead of just accepting the results, I wanted to make sure the averages were correct. I verified the query in **Check 2 under "How I Know These Numbers Are Right."** I used a different method by counting the add-ons on each order line first and then calculating the average for each product. I compared both methods and added a check to make sure the results matched within 0.001. This helped me confirm that the query was calculating the average correctly and accounting for order lines with no add-ons.
-    """)
+   For Question 8 my agent wrote the query and also wrote Check 2 under "How I Know These Numbers Are Right", which averages the add ons a second way. I did not change the query. I ran Check 2 and it showed that both methods agree within 0.001 for all 15 coffee and tea products.
+   """)
     return
 
 
