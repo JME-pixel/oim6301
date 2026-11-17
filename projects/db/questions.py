@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.25.2"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium")
 
 
@@ -41,7 +41,13 @@ def _(date, mo, timedelta):
         "Last 60 days" means the 60 days ending on the as_of date, {days_60_start} to {as_of}.
         """
     )
-    return as_of, days_60_start, days_90_start, last_month_end, last_month_start
+    return (
+        as_of,
+        days_60_start,
+        days_90_start,
+        last_month_end,
+        last_month_start,
+    )
 
 
 @app.cell
@@ -57,9 +63,6 @@ def _(duckdb, mo):
         return f"{float(x):,.2f}"
 
     return ask, data_dir, money
-
-
-# ---------------------------------------------------------------- Question 1
 
 
 @app.cell(hide_code=True)
@@ -89,15 +92,10 @@ def _(ask, last_month_end, last_month_start):
 
 @app.cell(hide_code=True)
 def _(last_month_start, mo, q1):
-    mo.md(
-        f"""
-        **Answer.** In {last_month_start:%B %Y} the three best selling products were {q1['product'][0]} ({q1['units'][0]} units), {q1['product'][1]} ({q1['units'][1]} units) and {q1['product'][2]} ({q1['units'][2]} units). I counted units, the total of the quantity on order lines, and not the number of lines.
-        """
-    )
+    mo.md(f"""
+    **Answer.** In {last_month_start:%B %Y} the three best selling products were {q1['product'][0]} ({q1['units'][0]} units), {q1['product'][1]} ({q1['units'][1]} units) and {q1['product'][2]} ({q1['units'][2]} units). I counted units, the total of the quantity on order lines, and not the number of lines.
+    """)
     return
-
-
-# ---------------------------------------------------------------- Question 2
 
 
 @app.cell(hide_code=True)
@@ -152,9 +150,6 @@ def _(mo, money, q2):
         """
     )
     return
-
-
-# ---------------------------------------------------------------- Question 3
 
 
 @app.cell(hide_code=True)
@@ -220,9 +215,6 @@ def _(mo, money, q3):
     return
 
 
-# ---------------------------------------------------------------- Question 4
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -284,9 +276,6 @@ def _(ask, mo, money, q4):
     return
 
 
-# ---------------------------------------------------------------- Question 5
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -310,15 +299,10 @@ def _(ask):
 
 @app.cell(hide_code=True)
 def _(mo, q5):
-    mo.md(
-        f"""
-        **Answer.** {q5.height} members joined and have never ordered: {', '.join(q5['first_name'])}, with join dates from {q5['join_date'].min()} to {q5['join_date'].max()}.
-        """
-    )
+    mo.md(f"""
+    **Answer.** {q5.height} members joined and have never ordered: {', '.join(q5['first_name'])}, with join dates from {q5['join_date'].min()} to {q5['join_date'].max()}.
+    """)
     return
-
-
-# ---------------------------------------------------------------- Question 6
 
 
 @app.cell(hide_code=True)
@@ -361,9 +345,6 @@ def _(mo, q6):
         """
     )
     return
-
-
-# ---------------------------------------------------------------- Question 7
 
 
 @app.cell(hide_code=True)
@@ -415,9 +396,6 @@ def _(as_of, days_60_start, mo, q7):
     return
 
 
-# ---------------------------------------------------------------- Question 8
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -457,9 +435,6 @@ def _(mo, q8):
         """
     )
     return
-
-
-# ---------------------------------------------------------------- Question 9
 
 
 @app.cell(hide_code=True)
@@ -510,9 +485,6 @@ def _(mo, money, q9):
     return
 
 
-# --------------------------------------------------------------- Question 10
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -545,9 +517,6 @@ def _(as_of, mo, money, q10):
         """
     )
     return
-
-
-# ------------------------------------------------------------------ Sections
 
 
 @app.cell(hide_code=True)
@@ -686,7 +655,7 @@ def _(mo):
 
     *Write this section yourself, in your own words. Pick one piece of AI output you did not accept as is. What did it give you, what did you change, and how did you know? Point to the commit or the cell. If the agent got it right the first time, say what you did to verify it, and point to the check cell above.*
 
-    WRITE YOURS HERE
+    For Question 8, the AI gave me a SQL query to calculate the average number of add-ons for each coffee and tea product. Instead of just accepting the results, I wanted to make sure the averages were correct. I verified the query in **Check 2 under "How I Know These Numbers Are Right."** I used a different method by counting the add-ons on each order line first and then calculating the average for each product. I compared both methods and added a check to make sure the results matched within 0.001. This helped me confirm that the query was calculating the average correctly and accounting for order lines with no add-ons.
     """)
     return
 
@@ -696,25 +665,25 @@ def _(mo):
     mo.md("""
     ## 3. Reading It Back
 
-    **My question:** Question 8, the average number of add ons on an order line for each coffee and tea product. It reads three tables: products, order lines and line options.
+     **My question:** Question 8, the average number of add ons on an order line for each coffee and tea product. It reads three tables: products, order lines and line options.
 
-    **My prediction, committed as `db: prediction` before I ran the joins:**
-    How many rows I expect the joins to produce before any grouping, and why.
+     **My prediction, committed as `db: prediction` before I ran the joins:**
+     How many rows I expect the joins to produce before any grouping, and why.
 
-    
 
-    I predict the joins will produce approximately 1,800 rows before grouping. There are 1,522 coffee and tea order lines. Since the query uses a LEFT JOIN, every order line will appear at least once, even if it has no add-ons. Some order lines have multiple add-ons, which will create additional rows.
 
-   
+     I predict the joins will produce approximately 1,800 rows before grouping. There are 1,522 coffee and tea order lines. Since the query uses a LEFT JOIN, every order line will appear at least once, even if it has no add-ons. Some order lines have multiple add-ons, which will create additional rows.
 
-   The data indicates that the joins produce 1,794 rows, so my prediction was very close. The difference happens because some order lines have multiple add-ons, causing them to appear more than once. Lines without add-ons still appear because of the LEFT JOIN.
 
-    
+
+    The data indicates that the joins produce 1,794 rows, so my prediction was very close. The difference happens because some order lines have multiple add-ons, causing them to appear more than once. Lines without add-ons still appear because of the LEFT JOIN.
+
+    **What one row of the final result means.** Take the Latte row from Question 8's table: `lines = 232`, `add_ons_on_those_lines = 192`, `average_add_ons_per_line = 0.828`. That row says 232 order lines included a Latte, and across those 232 lines, 192 add ons were attached in total (an extra shot, oat milk, and so on), some lines with more than one add on and some with none. Dividing 192 by 232 gives 0.828, so on average a Latte order picks up a little under one add on. It does not mean 83 percent of Lattes got exactly one add on; a few lines with two or three add ons and many lines with none can average out to the same number.
     """)
     return
 
 
-@app.cell(disabled=True)
+@app.cell
 def _(ask):
     # This cell is disabled on purpose. Commit your prediction first, then enable it from the cell menu.
     joined = ask("""
@@ -726,7 +695,7 @@ def _(ask):
     """)
     joined_rows = joined.height
     joined_rows
-    return joined, joined_rows
+    return
 
 
 @app.cell(hide_code=True)
@@ -786,7 +755,7 @@ def _(mo):
     mo.md("""
     ## 5. Time Spent
 
-    About WRITE A NUMBER hours outside class.
+    About 20 hours outside class.
     """)
     return
 
